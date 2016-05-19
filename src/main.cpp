@@ -1,11 +1,19 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <iostream>
+#include <string>
+#include <map>
+#include "shader.h"
 
-using namespace std;
 
 const int WIDTH = 1280;
 const int HEIGHT = 960;
+
+Shader shader;
+
+void OnShutdown(){
+
+}
 
 void OnRender(){
     glClearColor(1, 0, 0, 1);
@@ -13,13 +21,17 @@ void OnRender(){
     glutSwapBuffers();
 }
 
-void OnShutdown(){
-
-}
 
 void OnResize(int newWidth, int newHeight){
 
 }
+
+void OnInit(){
+  shader.loadFromFile(GL_VERTEX_SHADER, "data/shaders/simple.vert");
+  shader.loadFromFile(GL_FRAGMENT_SHADER, "data/shaders/simple.frag");
+}
+
+std::map<std::string, int> attributeList;
 
 int main(int argc, char** argv){
     glutInit(&argc, argv);
@@ -33,8 +45,12 @@ int main(int argc, char** argv){
     GLenum glewError = glewInit();
 
     if(GLEW_OK != glewError){
-        cerr << "Error: " << glewGetErrorString(glewError) << endl;
+        std::cerr << "Error: " << glewGetErrorString(glewError) << std::endl;
     } 
+
+    std::cout << "GL_VERSION = " << glGetString(GL_VERSION) << std::endl;
+
+    OnInit();
 
     glutCloseFunc(OnShutdown);
     glutDisplayFunc(OnRender);

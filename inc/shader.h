@@ -3,7 +3,7 @@
 
 #include <string>
 #include <map>
-#include <GL/gl.h>
+#include <GL/glew.h>
 
 class Shader {
     public:
@@ -25,9 +25,9 @@ class Shader {
         GLuint program;
         int totalShaders;
         
+        std::map<std::string, GLuint> attributeList;
         std::map<GLuint, GLuint> shadersByType;
         
-        std::map<std::string, GLuint> attributeList;
         std::map<std::string, GLuint> uniformLocationList;
 
 
