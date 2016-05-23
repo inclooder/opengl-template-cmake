@@ -3,17 +3,20 @@ project(opengl-template)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_BUILD_TYPE Debug)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_modules")
 
 find_package(GLUT REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(Threads)
+find_package(GLM REQUIRED)
+find_package(Threads REQUIRED)
 
 include_directories(
     ${opengl-template_SOURCE_DIR}/inc 
     ${GLUT_INCLUDE_DIR}
     ${OPENGL_INCLUDE_DIR}
     ${GLEW_INCLUDE_DIRS}
+    ${GLM_INCLUDE_DIRS}
 )
 
 add_subdirectory(test)

@@ -67,22 +67,31 @@ void Shader::createAndLinkProgram(){
 }
 
 void Shader::use(){
+    glUseProgram(this->program);
 }
 
 void Shader::unuse(){
+    glUseProgram(0);
 }
 
 void Shader::addAttribute(const std::string & attribute){
+    attributeList[attribute] = glGetAttribLocation(this->program, attribute.c_str());
+
 }
 
 void Shader::addUniform(const std::string & uniform){
+    uniformLocationList[uniform] = glGetUniformLocation(this->program, uniform.c_str());
 }
 
+
 GLuint Shader::operator[](const std::string & attribute){
+    return attributeList[attribute];
 }
 
 GLuint Shader::operator()(const std::string & uniform){
+    return uniformLocationList[uniform];
 }
 
 void Shader::deleteShaderProgram(){
+    glDeleteProgram(this->program);
 }
