@@ -19,8 +19,6 @@ include_directories(
     ${GLM_INCLUDE_DIRS}
 )
 
-add_subdirectory(test)
-
 set(SOURCES
     src/main.cpp
     src/shader.cpp

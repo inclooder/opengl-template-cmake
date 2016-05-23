@@ -8,7 +8,6 @@
 #include <iomanip>
 #include <cstddef>
 
-#define GL_CHECK_ERRORS std::cout << "Error code: " << std::hex << static_cast<int>(glGetError()) << std::endl;
 
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/type_ptr.hpp>
@@ -29,6 +28,7 @@ glm::mat4 P = glm::mat4(1);
 glm::mat4 MV = glm::mat4(1);
 
 Shader shader;
+
 
 void OnShutdown(){
 
@@ -54,7 +54,6 @@ void OnResize(int newWidth, int newHeight){
 }
 
 void OnInit(){
-    GL_CHECK_ERRORS
   shader.loadFromFile(GL_VERTEX_SHADER, "data/shaders/simple.vert");
   shader.loadFromFile(GL_FRAGMENT_SHADER, "data/shaders/simple.frag");
   shader.createAndLinkProgram();
@@ -63,7 +62,6 @@ void OnInit(){
     shader.addAttribute("vColor");
     shader.addAttribute("MVP");
   shader.unuse();
-  GL_CHECK_ERRORS
 
   vertices[0].color = glm::vec3(1, 0, 0);
   vertices[1].color = glm::vec3(0, 1, 0);
@@ -77,7 +75,6 @@ void OnInit(){
   indices[1] = 1;
   indices[2] = 2;
 
-  GL_CHECK_ERRORS
 
   glGenVertexArrays(1, &vaoID);
   glGenBuffers(1, &vboVerticesID); //This could be changed into one call. To consider later..
@@ -97,7 +94,6 @@ void OnInit(){
   glEnableVertexAttribArray(shader["vColor"]);
   glVertexAttribPointer(shader["vColor"], 3, GL_FLOAT, GL_FALSE, stride, (const GLvoid*)offsetof(Vertex, color)); //TODO: Change this legacy cast into c++ replacement
 
-  GL_CHECK_ERRORS
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndicesID);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
