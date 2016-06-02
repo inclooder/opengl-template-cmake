@@ -22,6 +22,7 @@ include_directories(
 set(SOURCES
     src/main.cpp
     src/shader.cpp
+    src/shader_program.cpp
 )
 
 add_executable(opengl-template ${SOURCES})

@@ -3,37 +3,40 @@
 #include <fstream>
 #include <GL/freeglut.h>
 
-Shader::Shader() : totalShaders(0){
-    
-}
-
-Shader::~Shader(){
-}
-
-void Shader::loadFromString(GLenum shaderType, const std::string & source){
-    GLuint shaderRef = glCreateShader(shaderType);
-    shadersByType.insert(std::pair<GLuint, GLuint>(shaderType, shaderRef));
+Shader::Shader(GLenum shaderType, const std::string & source){
+    this->shaderType = shaderType;
+    this->shaderRef = glCreateShader(shaderType);
+    //shadersByType.insert(std::pair<GLuint, GLuint>(shaderType, this->shaderRef));
 
     const char * sourceCode = source.c_str();
-    glShaderSource(shaderRef, 1, &sourceCode, 0);
-    glCompileShader(shaderRef);
+    glShaderSource(this->shaderRef, 1, &sourceCode, 0);
+    glCompileShader(this->shaderRef);
 
     GLchar logBuffer[2048];
     GLsizei logLength;
-    glGetShaderInfoLog(shaderRef, sizeof(logBuffer), &logLength, logBuffer);
-
-    /*
-     * We need to add one because length
-     * returned from glGetShaderInfoLog 
-     * doesn't include null terminator character.
-     */
-    GLsizei nullTerminatorPosition = logLength + 1; 
-    logBuffer[nullTerminatorPosition] = 0; 
+    glGetShaderInfoLog(this->shaderRef, sizeof(logBuffer), &logLength, logBuffer);
 
     std::cout << logBuffer << std::endl;
 }
 
-void Shader::loadFromFile(GLenum whichShader, const std::string & filePath){
+Shader::~Shader(){
+    glDeleteShader(this->shaderRef);
+}
+
+GLuint Shader::getShaderRef(){
+    return this->shaderRef;
+}
+
+GLuint Shader::getShaderType(){
+    return this->shaderType;
+}
+
+std::shared_ptr<Shader> Shader::loadFromString(GLenum whichShader, const std::string & source){
+    std::shared_ptr<Shader> newShader(new Shader(whichShader, source));
+    return newShader;
+}
+
+std::shared_ptr<Shader> Shader::loadFromFile(GLenum whichShader, const std::string & filePath){
     std::string shaderCode;
     std::ifstream inputFile(filePath);
     inputFile.seekg(0, std::ios::end);
@@ -43,55 +46,8 @@ void Shader::loadFromFile(GLenum whichShader, const std::string & filePath){
     shaderCode.assign((std::istreambuf_iterator<char>(inputFile)),
                        std::istreambuf_iterator<char>());
 
-    this->loadFromString(whichShader, shaderCode);
-}
-
-void Shader::createAndLinkProgram(){
-    this->program = glCreateProgram();
-    for(auto & elem : this->shadersByType){
-        glAttachShader(this->program, elem.second);
-    }
-    glLinkProgram(this->program);
-
-    GLchar logBuffer[2048];
-    GLsizei logLength;
-    glGetProgramInfoLog(this->program, sizeof(logBuffer), &logLength, logBuffer);
-    /*
-     * We need to add one because length
-     * returned from glGetShaderInfoLog 
-     * doesn't include null terminator character.
-     */
-    GLsizei nullTerminatorPosition = logLength + 1; 
-    logBuffer[nullTerminatorPosition] = 0; 
-    std::cout << logBuffer << std::endl;
-}
-
-void Shader::use(){
-    glUseProgram(this->program);
-}
-
-void Shader::unuse(){
-    glUseProgram(0);
-}
-
-void Shader::addAttribute(const std::string & attribute){
-    attributeList[attribute] = glGetAttribLocation(this->program, attribute.c_str());
-
-}
-
-void Shader::addUniform(const std::string & uniform){
-    uniformLocationList[uniform] = glGetUniformLocation(this->program, uniform.c_str());
+    std::shared_ptr<Shader> newShader(new Shader(whichShader, shaderCode));
+    return newShader;
 }
 
 
-GLuint Shader::operator[](const std::string & attribute){
-    return attributeList[attribute];
-}
-
-GLuint Shader::operator()(const std::string & uniform){
-    return uniformLocationList[uniform];
-}
-
-void Shader::deleteShaderProgram(){
-    glDeleteProgram(this->program);
-}

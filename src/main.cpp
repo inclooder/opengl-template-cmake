@@ -27,8 +27,8 @@ GLushort indices[3];
 glm::mat4 P = glm::mat4(1);
 glm::mat4 MV = glm::mat4(1);
 
-Shader shader;
-
+Shaders shaders;
+ShaderProgram * shaderProgram;
 
 void OnShutdown(){
 
@@ -38,11 +38,11 @@ void OnRender(){
     glClearColor(1, 1, 1, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    shader.use();
-    glUniformMatrix4fv(shader("MVP"), 1, GL_FALSE, glm::value_ptr(P*MV));
+    shaderProgram->use();
+    glUniformMatrix4fv(shaderProgram->operator()("MVP"), 1, GL_FALSE, glm::value_ptr(P*MV));
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndicesID);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, 0);
-    shader.unuse();
+    shaderProgram->unuse();
 
     glutSwapBuffers();
 }
@@ -54,49 +54,51 @@ void OnResize(int newWidth, int newHeight){
 }
 
 void OnInit(){
-  shader.loadFromFile(GL_VERTEX_SHADER, "data/shaders/simple.vert");
-  shader.loadFromFile(GL_FRAGMENT_SHADER, "data/shaders/simple.frag");
-  shader.createAndLinkProgram();
-  shader.use();
-    shader.addAttribute("vVertex");
-    shader.addAttribute("vColor");
-    shader.addAttribute("MVP");
-  shader.unuse();
+    std::shared_ptr<Shader> defaultVertShader = Shader::loadFromFile(GL_VERTEX_SHADER, "data/shaders/simple.vert");
+    std::shared_ptr<Shader> defaultFragShader = Shader::loadFromFile(GL_FRAGMENT_SHADER, "data/shaders/simple.frag");
+    shaders.push_back(defaultVertShader);
+    shaders.push_back(defaultFragShader);
 
-  vertices[0].color = glm::vec3(1, 0, 0);
-  vertices[1].color = glm::vec3(0, 1, 0);
-  vertices[2].color = glm::vec3(0, 0, 1);
+    shaderProgram = new ShaderProgram(shaders);
+    shaderProgram->use();
+    shaderProgram->addAttribute("vVertex");
+    shaderProgram->addAttribute("vColor");
+    shaderProgram->addAttribute("MVP");
+    shaderProgram->unuse();
 
-  vertices[0].position = glm::vec3(-1, -1, 0);
-  vertices[1].position = glm::vec3(0, 1, 0);
-  vertices[2].position = glm::vec3(1, -1, 0);
+    vertices[0].color = glm::vec3(1, 0, 0);
+    vertices[1].color = glm::vec3(0, 1, 0);
+    vertices[2].color = glm::vec3(0, 0, 1);
 
-  indices[0] = 0;
-  indices[1] = 1;
-  indices[2] = 2;
+    vertices[0].position = glm::vec3(-1, -1, 0);
+    vertices[1].position = glm::vec3(0, 1, 0);
+    vertices[2].position = glm::vec3(1, -1, 0);
 
-
-  glGenVertexArrays(1, &vaoID);
-  glGenBuffers(1, &vboVerticesID); //This could be changed into one call. To consider later..
-  glGenBuffers(1, &vboIndicesID);
-  GLsizei stride = sizeof(Vertex);
-  std::cout << "stride = " << std::dec << stride << std::endl;
-
-  glBindVertexArray(vaoID);
-  glBindBuffer(GL_ARRAY_BUFFER, vboVerticesID);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices[0], GL_STATIC_DRAW);
+    indices[0] = 0;
+    indices[1] = 1;
+    indices[2] = 2;
 
 
-  glEnableVertexAttribArray(shader["vVertex"]);
-  glVertexAttribPointer(shader["vVertex"], 3, GL_FLOAT, GL_FALSE, stride, 0);
+    glGenVertexArrays(1, &vaoID);
+    glGenBuffers(1, &vboVerticesID); //This could be changed into one call. To consider later..
+    glGenBuffers(1, &vboIndicesID);
+    GLsizei stride = sizeof(Vertex);
+
+    glBindVertexArray(vaoID);
+    glBindBuffer(GL_ARRAY_BUFFER, vboVerticesID);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices[0], GL_STATIC_DRAW);
 
 
-  glEnableVertexAttribArray(shader["vColor"]);
-  glVertexAttribPointer(shader["vColor"], 3, GL_FLOAT, GL_FALSE, stride, (const GLvoid*)offsetof(Vertex, color)); //TODO: Change this legacy cast into c++ replacement
+    glEnableVertexAttribArray(shaderProgram->operator[]("vVertex"));
+    glVertexAttribPointer(shaderProgram->operator[]("vVertex"), 3, GL_FLOAT, GL_FALSE, stride, 0);
 
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndicesID);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
+    glEnableVertexAttribArray(shaderProgram->operator[]("vColor"));
+    glVertexAttribPointer(shaderProgram->operator[]("vColor"), 3, GL_FLOAT, GL_FALSE, stride, (const GLvoid*)offsetof(Vertex, color)); //TODO: Change this legacy cast into c++ replacement
+
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndicesID);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
 
 }
 
