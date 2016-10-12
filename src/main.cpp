@@ -29,13 +29,13 @@ glm::mat4 MV = glm::mat4(1);
 Shaders shaders;
 ShaderProgram * shaderProgram;
 
-void OnShutdown(){
+void onShutdown(){
     if(shaderProgram){
         delete shaderProgram;
     }
 }
 
-void OnRender(){
+void onRender(){
     glClearColor(1, 1, 1, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -51,7 +51,7 @@ void onResize(GLFWwindow* window, int newWidth, int newHeight) {
     P = glm::ortho(-1, 1, -1, 1);
 }
 
-void OnInit(){
+void onInit(){
     std::shared_ptr<Shader> defaultVertShader = Shader::loadFromFile(GL_VERTEX_SHADER, "data/shaders/simple.vert");
     std::shared_ptr<Shader> defaultFragShader = Shader::loadFromFile(GL_FRAGMENT_SHADER, "data/shaders/simple.frag");
     shaders.push_back(defaultVertShader);
@@ -138,13 +138,13 @@ int main(int argc, char** argv){
     glfwSetWindowSizeCallback(window, onResize);
     if(!initializeGlew()) return EXIT_FAILURE;
 
-    OnInit();
+    onInit();
     while(!glfwWindowShouldClose(window)){
-        OnRender();
+        onRender();
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-    OnShutdown();
+    onShutdown();
     glfwTerminate();
     return EXIT_SUCCESS;
 }
