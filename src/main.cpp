@@ -1,5 +1,4 @@
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 #include <iostream>
 #include <string>
 #include <map>
@@ -7,7 +6,7 @@
 #include "vertex.h"
 #include <iomanip>
 #include <cstddef>
-
+#include <GLFW/glfw3.h>
 
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/type_ptr.hpp>
@@ -34,7 +33,6 @@ void OnShutdown(){
     if(shaderProgram){
         delete shaderProgram;
     }
-
 }
 
 void OnRender(){
@@ -46,12 +44,9 @@ void OnRender(){
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndicesID);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, 0);
     shaderProgram->unuse();
-
-    glutSwapBuffers();
 }
 
-
-void OnResize(int newWidth, int newHeight){
+void onResize(GLFWwindow* window, int newWidth, int newHeight) {
     glViewport(0, 0, (GLsizei)newWidth, (GLsizei)newHeight);
     P = glm::ortho(-1, 1, -1, 1);
 }
@@ -112,31 +107,44 @@ void OnInit(){
 
 }
 
-std::map<std::string, int> attributeList;
-
-int main(int argc, char** argv){
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-    glutInitContextVersion(3, 3);
-    glutInitContextFlags(GLUT_CORE_PROFILE | GLUT_DEBUG);
-    glutInitContextProfile(GLUT_FORWARD_COMPATIBLE);
-    glutInitWindowSize(WIDTH, HEIGHT);
-    glutCreateWindow("Opengl Window");
+bool initializeGlew(){
     glewExperimental = GL_TRUE;
     GLenum glewError = glewInit();
 
     if(GLEW_OK != glewError){
+        std::cerr << "GLEW initialization failed" << std::endl;
         std::cerr << "Error: " << glewGetErrorString(glewError) << std::endl;
+        return false;
     } 
 
     std::cout << "GL_VERSION = " << glGetString(GL_VERSION) << std::endl;
+    return true;
+}
+
+void onGlfwError(int error, const char* description){
+    std::cerr << "Error: " << description << std::endl;
+}
+
+int main(int argc, char** argv){
+    if(!glfwInit()) return EXIT_FAILURE;
+    glfwSetErrorCallback(onGlfwError);
+
+    GLFWwindow * window = glfwCreateWindow(WIDTH, HEIGHT, "opengl-template", NULL, NULL);
+    if(!window){
+        glfwTerminate();
+        return EXIT_FAILURE;
+    }
+    glfwMakeContextCurrent(window);
+    glfwSetWindowSizeCallback(window, onResize);
+    if(!initializeGlew()) return EXIT_FAILURE;
 
     OnInit();
-
-    glutCloseFunc(OnShutdown);
-    glutDisplayFunc(OnRender);
-    glutReshapeFunc(OnResize);
-    glutMainLoop();
-
-    return 0;
+    while(!glfwWindowShouldClose(window)){
+        OnRender();
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+    OnShutdown();
+    glfwTerminate();
+    return EXIT_SUCCESS;
 }
