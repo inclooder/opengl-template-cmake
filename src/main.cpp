@@ -31,6 +31,9 @@ Shaders shaders;
 ShaderProgram * shaderProgram;
 
 void OnShutdown(){
+    if(shaderProgram){
+        delete shaderProgram;
+    }
 
 }
 
