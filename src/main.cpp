@@ -97,7 +97,14 @@ void OnInit(){
 
 
     glEnableVertexAttribArray(shaderProgram->operator[]("vColor"));
-    glVertexAttribPointer(shaderProgram->operator[]("vColor"), 3, GL_FLOAT, GL_FALSE, stride, (const GLvoid*)offsetof(Vertex, color)); //TODO: Change this legacy cast into c++ replacement
+    glVertexAttribPointer(
+            shaderProgram->operator[]("vColor"),
+            3, 
+            GL_FLOAT,
+            GL_FALSE,
+            stride,
+            reinterpret_cast<const GLvoid *>(offsetof(Vertex, color))
+    ); 
 
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndicesID);
