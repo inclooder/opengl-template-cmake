@@ -2,11 +2,11 @@
 
 ## About
 
-Basic template for people who would like to try opengl and all goodies (glut, glew, glm).
+Basic template for people who would like to try opengl and all goodies (glfw, glew, glm).
 
 ## Current status
 
-* basic setup of glut, glew and glm
+* basic setup of glfw, glew and glm
 * triangle rendering example
 * shader class 
 
