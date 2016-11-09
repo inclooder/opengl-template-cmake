@@ -4,7 +4,5 @@ mkdir -p build
 
 (
 cd build
-cmake ..
-make
-./run.bash
+cmake .. && make && ./run.bash
 )
