@@ -39,7 +39,7 @@ int main(int argc, char** argv){
     if(!glfwInit()) return EXIT_FAILURE;
     glfwSetErrorCallback(onGlfwError);
 
-    Window * window = Window::create(width, height, "opengl-template");
+    std::shared_ptr<Window> window = Window::create(width, height, "opengl-template");
 
     if(!window){
         glfwTerminate();
@@ -48,21 +48,19 @@ int main(int argc, char** argv){
     window->makeContextCurrent();
     if(!initializeGlew()) return EXIT_FAILURE;
 
-    App * app = new App;
-    
-    app->init();
+    App app;
+    app.init();
 
     window->onResize([&app](int w, int h){
-            app->setViewport(w, h);
+            app.setViewport(w, h);
     });
 
     while(!window->isAboutToClose()){
-        app->update();
+        app.update();
         window->redraw();
         glfwPollEvents();
     }
-    app->deinit();
-    delete app;
+    app.deinit();
     glfwTerminate();
     return EXIT_SUCCESS;
 }

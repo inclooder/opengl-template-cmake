@@ -5,6 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <unordered_map>
 #include <functional>
+#include <memory>
+
 
 class Window {
     public:
@@ -13,8 +15,8 @@ class Window {
         void redraw();
         bool isAboutToClose();
         void onResize(std::function<void(int, int)> callback);
-        static Window * create(int width, 
-                int height, const std::string & title);
+        static std::shared_ptr<Window> create(int width, int height, 
+                               const std::string & title);
     private:
         GLFWwindow * m_windowHandle;
         int m_width;
@@ -27,7 +29,7 @@ class Window {
         Window & operator=(const Window &);
         void windowResized(int width, int height);
 
-        static std::unordered_map<GLFWwindow *, Window *> windows;
+        static std::unordered_map<GLFWwindow *, std::shared_ptr<Window> > windows;
         static void onWindowResizeCallback(GLFWwindow * windowHandle, 
                 int w, int h);
 };

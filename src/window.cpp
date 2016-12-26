@@ -2,23 +2,23 @@
 #include <algorithm>
 
 
-std::unordered_map<GLFWwindow *, Window *> Window::windows;
+std::unordered_map<GLFWwindow *, std::shared_ptr<Window> > Window::windows;
 
 void Window::onWindowResizeCallback(GLFWwindow * windowHandle, int w, int h){
     auto it = windows.find(windowHandle);
     if(it == windows.end()) return;
-    Window * wnd = it->second;
+    std::shared_ptr<Window> wnd = it->second;
     wnd->windowResized(w, h);
 }
 
-Window * Window::create(int width, int height, const std::string & title){
+std::shared_ptr<Window> Window::create(int width, int height, const std::string & title){
     GLFWwindow * windowHandle = glfwCreateWindow(
             width, height, 
             title.c_str(), NULL, NULL);
 
     if(windowHandle == NULL) return NULL;
 
-    Window * wnd =  new Window(windowHandle);
+    std::shared_ptr<Window> wnd = std::shared_ptr<Window>(new Window(windowHandle));
     windows.insert(std::make_pair(windowHandle, wnd));
     return wnd;
 }
