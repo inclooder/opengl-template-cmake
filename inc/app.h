@@ -1,6 +1,8 @@
 #ifndef APP_H
 #define APP_H
 
+#include "shader.h"
+
 class App {
     public:
         App();

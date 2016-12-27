@@ -8,8 +8,4 @@ struct Vertex {
     glm::vec3 color;
 };
 
-
-
-
-
 #endif /* end of include guard: VERTEX_H */

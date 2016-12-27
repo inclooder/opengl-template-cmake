@@ -1,4 +1,4 @@
-#include <GL/glew.h>
+#include <GL/glew.h> //This should be at the top
 #include <iostream>
 #include <string>
 #include <map>
@@ -8,10 +8,6 @@
 #include <functional>
 #include "app.h"
 #include "window.h"
-
-
-void onResize(GLFWwindow* window, int newWidth, int newHeight) {
-}
 
 bool initializeGlew(){
     glewExperimental = GL_TRUE;
@@ -49,10 +45,8 @@ int main(int argc, char** argv){
     if(!initializeGlew()) return EXIT_FAILURE;
 
     App app;
-    app.init();
-
     window->onResize([&app](int w, int h){
-            app.setViewport(w, h);
+        app.setViewport(w, h);
     });
 
     while(!window->isAboutToClose()){
@@ -60,7 +54,6 @@ int main(int argc, char** argv){
         window->redraw();
         glfwPollEvents();
     }
-    app.deinit();
     glfwTerminate();
     return EXIT_SUCCESS;
 }

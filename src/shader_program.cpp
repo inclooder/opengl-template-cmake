@@ -1,21 +1,14 @@
-#include "shader.h"
+#include "shader_program.h"
 #include <iostream>
 
 ShaderProgram::~ShaderProgram(){
     glDeleteProgram(this->programRef);
 }
 
-ShaderProgram::ShaderProgram(const Shaders & shaders){
-    this->programRef = glCreateProgram();
-    for(auto & elem : shaders){
-        glAttachShader(this->programRef, elem.get()->getShaderRef());
-    }
-    glLinkProgram(this->programRef);
-    //std::shared_ptr<GLchar> logBuffer(new GLchar[ShaderProgram::logBufferSize], std::default_delete<GLchar[]>());
-    std::unique_ptr<GLchar[]> logBuffer(new GLchar[ShaderProgram::logBufferSize]);
-    GLsizei logLength;
-    glGetProgramInfoLog(this->programRef, ShaderProgram::logBufferSize, &logLength, logBuffer.get());
-    std::cout << logBuffer.get() << std::endl;
+
+ShaderProgram::ShaderProgram(GLuint programRef)
+{
+    this->programRef = programRef;
 }
 
 void ShaderProgram::use(){
@@ -26,20 +19,41 @@ void ShaderProgram::unuse(){
     glUseProgram(0);
 }
 
-void ShaderProgram::addAttribute(const std::string & attribute){
-    attributeList[attribute] = glGetAttribLocation(this->programRef, attribute.c_str());
+GLuint ShaderProgram::attribute(const std::string & attribute){
+    if(attributeList.find(attribute) == attributeList.end()){
 
-}
+        GLint currentProgramTmp;
+        glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgramTmp);
+        GLuint currentProgram = static_cast<GLuint>(currentProgramTmp);
+        if(currentProgram != this->programRef)
+        {
+            glUseProgram(this->programRef);
+        }
+        attributeList[attribute] = glGetAttribLocation(this->programRef, attribute.c_str());
 
-void ShaderProgram::addUniform(const std::string & uniform){
-    uniformLocationList[uniform] = glGetUniformLocation(this->programRef, uniform.c_str());
-}
-
-
-GLuint ShaderProgram::operator[](const std::string & attribute){
+        if(currentProgram != this->programRef)
+        {
+            glUseProgram(currentProgram);
+        }
+    }
     return attributeList[attribute];
 }
 
-GLuint ShaderProgram::operator()(const std::string & uniform){
+GLuint ShaderProgram::uniform(const std::string & uniform){
+    if(uniformLocationList.find(uniform) == uniformLocationList.end()){
+        GLint currentProgramTmp;
+        glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgramTmp);
+        GLuint currentProgram = static_cast<GLuint>(currentProgramTmp);
+        if(currentProgram != this->programRef)
+        {
+            glUseProgram(this->programRef);
+        }
+        uniformLocationList[uniform] = glGetUniformLocation(this->programRef, uniform.c_str());
+
+        if(currentProgram != this->programRef)
+        {
+            glUseProgram(currentProgram);
+        }
+    }
     return uniformLocationList[uniform];
 }
